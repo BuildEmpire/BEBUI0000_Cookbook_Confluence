@@ -1,7 +1,20 @@
-default['cookbook_confluence']['confluence']['version'] = '8.1.4'
-default['cookbook_confluence']['confluence']['address'] = 'localhost'
-default['cookbook_confluence']['confluence']['data_dir'] = '/root/.BuildServer'
-default['cookbook_confluence']['confluence']['jdbc']['download_url'] = "http://ftp.kaist.ac.kr/mysql/Downloads/Connector-J/"
-default['cookbook_confluence']['confluence']['jdbc']['filename'] = "mysql-connector-java-5.1.32.tar.gz"
-default['cookbook_confluence']['confluence']['jdbc']['extract_command'] = "tar --strip-components=1 -zxvf mysql-connector-java-5.1.32.tar.gz mysql-connector-java-5.1.32/mysql-connector-java-5.1.32-bin.jar"
-default['cookbook_confluence']['confluence']['memory_options'] = "-Xms750m -Xmx750m -XX:MaxPermSize=270m"
+default['cookbook_confluence']['home_path']      = '/var/atlassian/application-data/confluence'
+default['cookbook_confluence']['install_path']   = '/opt/atlassian/confluence'
+default['cookbook_confluence']['install_type']   = 'installer'
+default['cookbook_confluence']['url_base']       = 'http://www.atlassian.com/software/confluence/downloads/binary/atlassian-confluence'
+default['cookbook_confluence']['user']           = 'confluence'
+default['cookbook_confluence']['version']        = '5.3'
+default['cookbook_confluence']['arch'] = 'x64'
+default['cookbook_confluence']['url']      = "#{node['cookbook_confluence']['url_base']}-#{node['confluence']['version']}-#{node['confluence']['arch']}.bin"
+default['cookbook_confluence']['checksum'] = ''
+
+default['cookbook_confluence']['jvm']['minimum_memory']  = '256m'
+default['cookbook_confluence']['jvm']['maximum_memory']  = '512m'
+default['cookbook_confluence']['jvm']['maximum_permgen'] = '256m'
+default['cookbook_confluence']['jvm']['java_opts']       = ''
+
+default['cookbook_confluence']['tomcat']['keyAlias']     = 'tomcat'
+default['cookbook_confluence']['tomcat']['keystoreFile'] = "#{node['cookbook_confluence']['home_path']}/.keystore"
+default['cookbook_confluence']['tomcat']['keystorePass'] = 'changeit'
+default['cookbook_confluence']['tomcat']['port']         = '8090'
+default['cookbook_confluence']['tomcat']['ssl_port']     = '8443'

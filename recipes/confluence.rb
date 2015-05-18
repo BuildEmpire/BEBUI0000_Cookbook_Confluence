@@ -3,120 +3,58 @@
 # Recipe:: confluence
 #
 
-# Retrieve the useful variables for the recipe
-archive_directory = Chef::Config[:file_cache_path]
-data_directory = node['cookbook_confluence']['confluence']['data_dir']
-confluence_version = node['cookbook_confluence']['confluence']['version']
-jdbc_driver_download_url = node['cookbook_confluence']['confluence']['jdbc']['download_url']
-jdbc_driver_filename = node['cookbook_confluence']['confluence']['jdbc']['filename']
-address = node['cookbook_confluence']['confluence']['address']
-database = node['cookbook_confluence']['confluence']['database']
-extract_command = node['cookbook_confluence']['confluence']['jdbc']['extract_command']
+# Setup the confluence installation variables
+template "#{Chef::Config[:file_cache_path]}/atlassian-confluence-response.varfile" do
+  source 'response.varfile.erb'
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
 
-# Set the useful variables for the recipe
-server_archive_name = "TeamCity-#{teamcity_version}.tar.gz"
-server_directory = "/opt/teamcity/#{teamcity_version}"
-config_directory = "#{server_directory}/TeamCity/conf"
-webapps_directory = "#{server_directory}/TeamCity/webapps"
-teamcity_directory = "#{webapps_directory}/teamcity"
-jdbc_driver_directory = "#{data_directory}/lib/jdbc"
-data_config_directory = "#{data_directory}/config"
-data_plugins_directory = "#{data_directory}/plugins"
-server_archive_path = "#{archive_directory}/#{server_archive_name}"
-database_properties_file = "#{data_config_directory}/database.properties"
-
-# Download the version of teamcity, if we don't already have it
-remote_file server_archive_path do
-  backup false
-  source "http://download.jetbrains.com/teamcity/#{server_archive_name}"
+# Copy the confluence file from the remote location to the local location.
+remote_file "#{Chef::Config[:file_cache_path]}/atlassian-confluence-#{node['cookbook_confluence']['version']}-#{node['cookbook_confluence']['arch']}.bin" do
+  source node['cookbook_confluence']['url']
+  mode '0755'
   action :create_if_missing
-  notifies :run, "bash[install-teamcity]", :immediately
 end
 
-# Run the commands to extract and move teamcity into place.
-bash "install-teamcity" do
-  code <<-EOH
-    mkdir -p #{server_directory}
-    cd #{server_directory}
-    tar -xvf #{server_archive_path}
-    mkdir -p #{teamcity_directory}
-    mv #{webapps_directory}/ROOT #{teamcity_directory}/ROOT
-  EOH
-  action :nothing
+# Install confluence after the download, using the variables we've setup.
+execute "Installing Confluence #{node['cookbook_confluence']['version']}" do
+  cwd Chef::Config[:file_cache_path]
+  command "./atlassian-confluence-#{node['cookbook_confluence']['version']}-#{node['cookbook_confluence']['arch']}.bin -q -varfile atlassian-confluence-response.varfile"
+  creates node['cookbook_confluence']['install_path']
 end
 
-# Set the symbolic link to the current teamcity installation
-link '/opt/teamcity/current' do
-  to server_directory
+# Setup the Java Keystore
+execute 'Generating Self-Signed Java Keystore' do
+  command <<-COMMAND
+#{node['java']['java_home']}/bin/keytool -genkey \
+      -alias #{node['cookbook_confluence']['tomcat']['keyAlias']} \
+      -keyalg RSA \
+      -dname 'CN=#{node['fqdn']}, OU=Example, O=Example, L=Example, ST=Example, C=US' \
+      -keypass #{node['cookbook_confluence']['tomcat']['keystorePass']} \
+      -storepass #{node['cookbook_confluence']['tomcat']['keystorePass']} \
+      -keystore #{node['cookbook_confluence']['tomcat']['keystoreFile']}
+    chown #{node['cookbook_confluence']['user']}:#{node['cookbook_confluence']['user']} #{node['cookbook_confluence']['tomcat']['keystoreFile']}
+  COMMAND
+  creates node['cookbook_confluence']['tomcat']['keystoreFile']
+  only_if { node['cookbook_confluence']['tomcat']['keystoreFile'] == "#{node['cookbook_confluence']['home_path']}/.keystore" }
 end
 
-# Create the data configuration directory
-directory data_config_directory do
-  recursive true
-  action :create
+# Install the MySQL connector
+include_recipe 'mysql_connector'
+mysql_connector_j "#{node['cookbook_confluence']['install_path']}/lib"
+
+# Setup the confluence service script
+template '/etc/init.d/confluence' do
+  source 'confluence.init.erb'
+  mode '0755'
+  notifies :restart, 'service[confluence]', :delayed
 end
 
-# If we are using an external database and all properties are set
-if database['external'] && database['external'] == true && database['host'] && database['port'] && database['name'] && database['username'] && database['password']
-
-  # Create the jdbc driver directory
-  directory jdbc_driver_directory do
-    recursive true
-    action :create
-  end
-
-  # Download the jdbc driver of choice
-  remote_file "#{jdbc_driver_directory}/#{jdbc_driver_filename}" do
-    backup false
-    mode 00644
-    source "#{jdbc_driver_download_url}#{jdbc_driver_filename}"
-    action :create_if_missing
-    notifies :run, "bash[extract-driver]", :immediately
-  end
-
-# Run the commands to extract and move teamcity into place.
-  bash "extract-driver" do
-    code <<-EOH
-    cd #{jdbc_driver_directory}
-    #{extract_command}
-    EOH
-    action :nothing
-    only_if { extract_command }
-  end
-
-  # Setup the database properties file for TeamCity
-  template database_properties_file do
-    source database['properties_file']
-    action :create
-    variables(
-      :host => database['host'],
-      :port => database['port'],
-      :name => database['name'],
-      :user => database['username'],
-      :password => database['password']
-    )
-  end
-
-else
-
-  # Setup the database properties file for TeamCity using the default internal database hsql
-  template database_properties_file do
-    source "database.hsqldb.properties.dist.erb"
-    action :create
-  end
-
-end
-
-# Create the data configuration directory
-directory data_plugins_directory do
-  recursive true
-  action :create
-end
-
-# Configure TeamCity TomCat server
-template "#{config_directory}/server.xml" do
-  source 'server.xml.erb'
-  variables(
-      :address => address
-  )
+# Install and restart the service
+service 'confluence' do
+  supports :status => true, :restart => true
+  action :enable
+  subscribes :restart, 'java_ark[jdk]'
 end
