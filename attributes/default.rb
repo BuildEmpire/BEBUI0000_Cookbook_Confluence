@@ -5,7 +5,7 @@ default['cookbook_confluence']['url_base']       = 'http://www.atlassian.com/sof
 default['cookbook_confluence']['user']           = 'confluence'
 default['cookbook_confluence']['version']        = '5.3'
 default['cookbook_confluence']['arch'] = 'x64'
-default['cookbook_confluence']['url']      = "#{node['cookbook_confluence']['url_base']}-#{node['confluence']['version']}-#{node['confluence']['arch']}.bin"
+default['cookbook_confluence']['url']      = "#{node['cookbook_confluence']['url_base']}-#{node['cookbook_confluence']['version']}-#{node['cookbook_confluence']['arch']}.bin"
 default['cookbook_confluence']['checksum'] = ''
 
 default['cookbook_confluence']['jvm']['minimum_memory']  = '256m'

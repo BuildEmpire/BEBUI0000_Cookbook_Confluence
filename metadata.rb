@@ -12,6 +12,6 @@ recipe 'cookbook_confluence', 'Confluence.'
   supports os
 end
 
-%w{build-essential appbox databox java}.each do |cb|
+%w{build-essential appbox java mysql_connector}.each do |cb|
   depends cb
 end
