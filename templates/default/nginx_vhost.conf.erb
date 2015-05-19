@@ -7,6 +7,8 @@ server {
     error_log  <%= node['nginx']['log_dir'] %>/<%= node['cookbook_confluence']['appname'] %>-error.log;
     rewrite_log on;
 
+    client_max_body_size 40M;
+
     location / {
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Server $host;
