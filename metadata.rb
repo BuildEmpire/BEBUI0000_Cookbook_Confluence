@@ -4,7 +4,7 @@ maintainer_email 'fred.thompson@buildempire.co.uk'
 license          'Apache 2.0'
 description      'Confluence.'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.0.1'
+version          '0.0.2'
 
 recipe 'cookbook_confluence', 'Confluence.'
 
@@ -12,6 +12,6 @@ recipe 'cookbook_confluence', 'Confluence.'
   supports os
 end
 
-%w{build-essential appbox java mysql_connector}.each do |cb|
+%w{build-essential appbox java mysql_connector nginx}.each do |cb|
   depends cb
 end
