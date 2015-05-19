@@ -18,8 +18,8 @@
                    useBodyEncodingForURI="true"
                    compression="on"
                    compressableMimeType="text/html,text/xml,text/plain,text/css,application/json,application/javascript,application/x-javascript"
-                   proxyName="<%= node['cookbook_confluence']['nginx']['virtual_host_alias'] %>"
-                   proxyPort="<%= node['cookbook_confluence']['nginx']['port'] %>"
+                   proxyName="<%= node['cookbook_confluence']['hostname'] %>"
+                   proxyPort="<%= node['cookbook_confluence']['listen_port'] %>"
         />
 
         <Connector port="<%= node['cookbook_confluence']['tomcat']['ssl_port'] %>"
