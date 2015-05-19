@@ -19,3 +19,8 @@ template(File.join(node['nginx']['dir'], 'sites-available', node['cookbook_confl
   group     'root'
   notifies :reload, 'service[nginx]'
 end
+
+# TODO issue: nginx not reload enabled site
+nginx_site node['cookbook_confluence']['appname'] do
+  notifies :reload, 'service[nginx]'
+end
