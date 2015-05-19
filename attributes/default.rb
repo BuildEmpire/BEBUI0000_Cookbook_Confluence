@@ -16,5 +16,5 @@ default['cookbook_confluence']['jvm']['java_opts']       = ''
 default['cookbook_confluence']['tomcat']['keyAlias']     = 'tomcat'
 default['cookbook_confluence']['tomcat']['keystoreFile'] = "#{node['cookbook_confluence']['home_path']}/.keystore"
 default['cookbook_confluence']['tomcat']['keystorePass'] = 'changeit'
-default['cookbook_confluence']['tomcat']['port']         = '8090'
+default['cookbook_confluence']['tomcat']['port']         = '80'
 default['cookbook_confluence']['tomcat']['ssl_port']     = '8443'
