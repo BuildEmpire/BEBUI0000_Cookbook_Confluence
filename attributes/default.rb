@@ -17,7 +17,6 @@ default['cookbook_confluence']['checksum'] = ''
 
 default['cookbook_confluence']['jvm']['minimum_memory']  = '512m'
 default['cookbook_confluence']['jvm']['maximum_memory']  = '1024m'
-default['cookbook_confluence']['jvm']['maximum_permgen'] = '512m'
 default['cookbook_confluence']['jvm']['java_opts']       = ''
 
 default['cookbook_confluence']['tomcat']['keyAlias']     = 'tomcat'
@@ -25,3 +24,5 @@ default['cookbook_confluence']['tomcat']['keystoreFile'] = "#{node['cookbook_con
 default['cookbook_confluence']['tomcat']['keystorePass'] = 'changeit'
 default['cookbook_confluence']['tomcat']['port']         = '8090'
 default['cookbook_confluence']['tomcat']['ssl_port']     = '8443'
+default['cookbook_confluence']['tomcat']['listen_port']     = '80'
+default['cookbook_confluence']['tomcat']['listen_ssl_port'] = '443'

@@ -19,7 +19,7 @@
                    compression="on"
                    compressableMimeType="text/html,text/xml,text/plain,text/css,application/json,application/javascript,application/x-javascript"
                    proxyName="<%= node['cookbook_confluence']['hostname'] %>"
-                   proxyPort="<%= node['cookbook_confluence']['listen_port'] %>"
+                   proxyPort="<%= node['cookbook_confluence']['tomcat']['listen_port'] %>"
         />
 
         <Connector port="<%= node['cookbook_confluence']['tomcat']['ssl_port'] %>"
@@ -35,6 +35,8 @@
              clientAuth="false"
              SSLEnabled="true"
              sslProtocol="TLS"
+             proxyName="<%= node['cookbook_confluence']['hostname'] %>"
+             proxyPort="<%= node['cookbook_confluence']['tomcat']['listen_ssl_port'] %>"
              <%- if node['cookbook_confluence']['tomcat'] %>
              <%= "keyAlias=\"#{node['cookbook_confluence']['tomcat']['keyAlias']}\"" if node['cookbook_confluence']['tomcat']['keyAlias'] %>
              <%= "keystoreFile=\"#{node['cookbook_confluence']['tomcat']['keystoreFile']}\"" if node['cookbook_confluence']['tomcat']['keystoreFile'] %>
