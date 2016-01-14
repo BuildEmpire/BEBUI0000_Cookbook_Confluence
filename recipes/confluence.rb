@@ -20,8 +20,8 @@ end
 
 # Create the installation directory
 directory node['cookbook_confluence']['install_path'] do
-  owner 'root'
-  group 'root'
+  owner node['cookbook_confluence']['user']
+  group node['cookbook_confluence']['user']
   mode '0755'
   action :create
   recursive true
