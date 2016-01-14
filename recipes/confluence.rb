@@ -18,15 +18,6 @@ remote_file "#{Chef::Config[:file_cache_path]}/atlassian-confluence-#{node['cook
   action :create_if_missing
 end
 
-# Create the installation directory
-directory node['cookbook_confluence']['install_path'] do
-  owner node['cookbook_confluence']['user']
-  group node['cookbook_confluence']['user']
-  mode '0755'
-  action :create
-  recursive true
-end
-
 # Install confluence after the download, using the variables we've setup.
 execute "Installing Confluence #{node['cookbook_confluence']['version']}" do
   cwd Chef::Config[:file_cache_path]
